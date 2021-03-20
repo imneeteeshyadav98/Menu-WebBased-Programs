@@ -1,0 +1,29 @@
+- hosts: web
+  tasks:
+  - debug:
+      msg: Configure Httpd Server
+  - name: httpd package insttaltion
+    package:
+      name: "httpd"
+      state: present
+    register: x
+  - name: document root dir
+    file:
+      state: directory
+      dest: "/var/www/neetesh"
+    register: y
+  - name: configure web Server
+    copy:
+      dest: /etc/httpd/conf.d/neetesh.conf
+      src: "neetesh.conf"
+    when: x.rc == 0
+    notify: service httpd      
+  - name: copy web page 
+    copy:
+      dest: "var/www/neetesh/index.html"
+      src: "/root/python-specilist/Menu-Program/ansible/web_conf_update/index.html"
+    when: y.failed == true
+  - name: start httpd service
+    service:
+      name: "httpd"
+      state: restarted
